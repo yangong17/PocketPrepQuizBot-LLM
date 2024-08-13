@@ -7,6 +7,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from langchain_ollama import OllamaLLM
+from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
 import os
 import logging
@@ -87,7 +89,7 @@ def configure_quiz_settings(driver, slider_value=10):
     if incorrect_questions_checkbox.get_attribute("aria-checked") == "true":
         incorrect_questions_checkbox.click()
 
-    # Set the Question Number Slider to the desired value
+    # IMPORTANT! Set the Question Number Slider to the desired value
     try:
         slider = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="questions-slider"]'))
@@ -99,7 +101,6 @@ def configure_quiz_settings(driver, slider_value=10):
         logging.info(f"Slider set to value: {slider_value}")
     except TimeoutException:
         logging.error("Slider element not found or took too long to load.")
-
 
 
 def start_quiz(driver):
@@ -141,23 +142,52 @@ def log_question_and_answers(driver):
 
     # Log all answer options in a list
     answer_options = []
-    # Determine the number of answer options dynamically (assuming up to 10)
-    # Try to find answer options until an exception is raised (indicating no more options are available)
+    all_answers = []
     i = 1
     while True:
         try:
             answer_option_xpath = answer_options_xpath_template.format(i)
             answer_option = driver.find_element(By.XPATH, answer_option_xpath).text
             answer_options.append(answer_option)
-            # Log using letters (ASCII) instead of numbers
-            letter = chr(64 + i)  # ASCII 65 is 'A', so 64 + 1 = 'A'
+            letter = chr(64 + i)  # Convert index to letter
             logging.info(f"{letter}: {answer_option}")
+            all_answers.append(f"{letter}: {answer_option}")
             i += 1
         except NoSuchElementException:
             break  # Exit loop if no more elements are found
 
-    # Wait for user to press 'enter' to move to the next question
-    input("Press 'Enter' when you are ready to proceed to the next question...")
+    # Setup for using LangChain with Ollama
+    template = """
+    You are taking a PHR (professional in human resources) quiz.
+    Answer the following question with only the letter associated with the correct answer. 
+    If there are multiple correct answers, separate them with a ','.
+
+    Question: {question}
+
+    Answers:
+    {all_answers}
+    """
+
+    model = OllamaLLM(model='llama3.1')
+    prompt = ChatPromptTemplate.from_template(template)
+    chain = prompt | model
+
+    # Invoke the model to get the prediction
+    formatted_answers = '\n'.join(all_answers)  # Format the answers for display
+    result = chain.invoke({"question": question, "all_answers": formatted_answers})
+    print("Bot predicted answer:", result)
+
+    # Send the appropriate key press based on the model's prediction
+    if ',' in result:
+        first_result = result.split(',')[0].strip()
+    else:
+        first_result = result.strip()
+
+    driver.find_element(By.TAG_NAME, 'body').send_keys(first_result.lower())
+    logging.info(f"Selected answer: {first_result.upper()}")
+
+    # Wait for user to press 'enter' to move to the next question - FOR TROUBLESHOOTING
+    # input("Press 'Enter' when you are ready to proceed to the next question...")
 
 # Replace the previous loop in the complete_quiz function with this one
 def complete_quiz(driver):
@@ -172,8 +202,8 @@ def complete_quiz(driver):
         # Simulate pressing the "Right Arrow" to move to the next question
         driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.ARROW_RIGHT)
 
-        # Random sleep time between 8 and 15 seconds to mimic human behavior
-        sleep_time = random.uniform(8, 15)
+        # Random sleep time between 5 and 10 seconds to mimic human behavior
+        sleep_time = random.uniform(5, 10)
         logging.info(f"Sleeping for {sleep_time:.2f} seconds before next question.")
         time.sleep(sleep_time)
 
