@@ -60,19 +60,19 @@ def navigate_to_quiz_builder(driver, start_url):
     time.sleep(2)
 
 
-def configure_quiz_settings(driver, slider_value=10):
+def configure_quiz_settings(driver, slider_value=50): #IMPORTANT! Slider value determines # of questions to run in quiz. (E.g: "slider_value=10" = 10 questions)
     # Ensure "New Questions" remains checked
     new_questions_checkbox = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, '//div[@aria-labelledby="byoq__include-item-new" and contains(@class, "uikit-checkbox")]'))
     )
-    if new_questions_checkbox.get_attribute("aria-checked") == "false": #This means that it will be toggled if it is false
+    if new_questions_checkbox.get_attribute("aria-checked") == "false": #Basically sets it to the opposite of whatever is listed here. 
         new_questions_checkbox.click()
 
     # Uncheck the "Answered Questions" checkbox
     answered_questions_checkbox = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, '//div[@aria-labelledby="byoq__include-item-answered" and contains(@class, "uikit-checkbox")]'))
     )
-    if answered_questions_checkbox.get_attribute("aria-checked") == "false":
+    if answered_questions_checkbox.get_attribute("aria-checked") == "true":
         answered_questions_checkbox.click()
 
     # Uncheck the "Flagged Questions" checkbox
@@ -89,9 +89,9 @@ def configure_quiz_settings(driver, slider_value=10):
     if incorrect_questions_checkbox.get_attribute("aria-checked") == "true":
         incorrect_questions_checkbox.click()
 
-    # IMPORTANT! Set the Question Number Slider to the desired value
+    # Set the Question Number Slider to the desired value (Modify it above)
     try:
-        slider = WebDriverWait(driver, 10).until(
+        slider = WebDriverWait(driver, 10).until( 
             EC.presence_of_element_located((By.XPATH, '//*[@id="questions-slider"]'))
         )
         if slider_value is None:
@@ -202,8 +202,8 @@ def complete_quiz(driver):
         # Simulate pressing the "Right Arrow" to move to the next question
         driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.ARROW_RIGHT)
 
-        # Random sleep time between 5 and 10 seconds to mimic human behavior
-        sleep_time = random.uniform(5, 10)
+        # Random sleep time between 5 and 15 seconds to mimic human behavior
+        sleep_time = random.uniform(5, 15)
         logging.info(f"Sleeping for {sleep_time:.2f} seconds before next question.")
         time.sleep(sleep_time)
 
