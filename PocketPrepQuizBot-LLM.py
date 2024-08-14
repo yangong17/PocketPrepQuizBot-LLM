@@ -59,7 +59,7 @@ def navigate_to_quiz_builder(driver, start_url):
     driver.find_element(By.XPATH, '//*[@id="study__container"]/div[2]/div[2]/div[2]/div[7]').click() # (Build your own page)
     time.sleep(2)
 
-
+# ==========================IMPORTANT =======================================================
 def configure_quiz_settings(driver, slider_value=50): #IMPORTANT! Slider value determines # of questions to run in quiz. (E.g: "slider_value=10" = 10 questions)
     # Ensure "New Questions" remains checked
     new_questions_checkbox = WebDriverWait(driver, 10).until(
@@ -207,16 +207,26 @@ def complete_quiz(driver):
         time.sleep(sleep_time)
 
     # Quit quiz
-    driver.find_element(By.XPATH, '//*[@id="study"]/div/div[2]/div/div/div[1]/button').click()
-    time.sleep(1)
+    quit_button_xpath = '//*[@id="study"]/div/div[2]/div/div/div[1]/button'
+    quit_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, quit_button_xpath))
+    )
+    quit_button.click()
 
     # Submit quiz
-    driver.find_element(By.XPATH, '//*[@id="study"]/div/div[2]/div[2]/div[2]/div[2]/button[1]').click()
-    time.sleep(2)
-
-    # Close results
-    driver.find_element(By.XPATH, '//*[@id="study"]/div/div[2]/div[3]/button[2]').click()
-    time.sleep(2)
+    submit_button_xpath = '//*[@id="study"]/div/div[2]/div[2]/div[2]/div[2]/button[1]'
+    submit_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, submit_button_xpath))
+    )
+    submit_button.click()
+    
+    # Press the button to close results
+    close_button_xpath = '//*[@id="study"]/div/div[2]/div[3]/button[2]'
+    close_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.XPATH, close_button_xpath))
+    )
+    close_button.click()
+    
 
 # Main function
 def main():
@@ -234,7 +244,8 @@ def main():
             if not loops_needed:
                 logging.info("No remaining questions. Exiting.")
                 break
-
+            
+            time.sleep(20) # Wait for quiz to load
             complete_quiz(driver)
 
     finally:
