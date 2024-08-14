@@ -132,13 +132,13 @@ def start_quiz(driver):
 
 
 # Function to log the question and answers, and wait for user confirmation
-def log_question_and_answers(driver):
+def log_question_and_answers(driver, question_number):
     current_question_xpath = '//*[@id="study"]/div/div[2]/div/div/div[2]/div/div/div[2]/div[2]'
     answer_options_xpath_template = '//*[@id="study"]/div/div[2]/div/div/div[2]/div/div/div[2]/div[3]/div[{}]/div/div[2]'
 
     # Log the question
     question = driver.find_element(By.XPATH, current_question_xpath).text
-    logging.info(f"Question: {question}")
+    logging.info(f"Question {question_number}: {question}")  # Changed to include question_number
 
     # Log all answer options in a list
     answer_options = []
@@ -159,7 +159,8 @@ def log_question_and_answers(driver):
     # Setup for using LangChain with Ollama
     template = """
     You are taking a PHR (professional in human resources) quiz.
-    Answer the following question with only the letter associated with the correct answer. 
+    Answer the following question with ONLY the letter associated with the correct answer.
+    There is only one correct answer, unless the question states otherwise. 
     If there are multiple correct answers, separate them with a ','.
 
     Question: {question}
@@ -178,13 +179,11 @@ def log_question_and_answers(driver):
     print("Bot predicted answer:", result)
 
     # Send the appropriate key press based on the model's prediction
-    if ',' in result:
-        first_result = result.split(',')[0].strip()
-    else:
-        first_result = result.strip()
-
-    driver.find_element(By.TAG_NAME, 'body').send_keys(first_result.lower())
-    logging.info(f"Selected answer: {first_result.upper()}")
+    results = result.strip().split(',')
+    for answer in results:
+        answer = answer.strip().upper()  # Clean up any spaces and convert to uppercase
+        driver.find_element(By.TAG_NAME, 'body').send_keys(answer)
+        logging.info(f"Selected answer: {answer}")
 
     # Wait for user to press 'enter' to move to the next question - FOR TROUBLESHOOTING
     # input("Press 'Enter' when you are ready to proceed to the next question...")
@@ -192,12 +191,12 @@ def log_question_and_answers(driver):
 # Replace the previous loop in the complete_quiz function with this one
 def complete_quiz(driver):
     total_questions_xpath = '//*[@id="study"]/div/div[2]/div/div/div[2]/div/div/div[2]/div[1]/h2/div[2]'
-
     total_questions = int(driver.find_element(By.XPATH, total_questions_xpath).text.replace("/ ", ""))
     logging.info(f"Starting quiz with {total_questions} questions.")
 
-    for _ in range(total_questions):
-        log_question_and_answers(driver)
+    for question_number in range(1, total_questions + 1):
+        logging.info(f"Processing Question {question_number}/{total_questions}")  # Log the current question number
+        log_question_and_answers(driver, question_number)
 
         # Simulate pressing the "Right Arrow" to move to the next question
         driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.ARROW_RIGHT)
