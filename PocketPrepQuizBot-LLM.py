@@ -2,6 +2,8 @@ import time
 import random
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -12,6 +14,9 @@ from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
 import os
 import logging
+
+chrome_options = Options()
+chrome_options.add_argument("--incognito")
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -33,7 +38,7 @@ logging.info(f"Driver Path: {driver_path}")
 # Selenium setup
 def setup_driver(driver_path):
     service = Service(driver_path)
-    driver = webdriver.Chrome(service=service)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.maximize_window()
     return driver
 
@@ -158,8 +163,10 @@ def log_question_and_answers(driver, question_number):
 
     # Setup for using LangChain with Ollama
     template = """
-    You are taking a PHR (professional in human resources) quiz.
+    You are taking a PTCB PTCE pharmacology quiz.
     Answer the following question with ONLY the letter associated with the correct answer.
+    DO NOT include anything else in your answer. 
+    DO NOT include any emojis.
     There is only one correct answer, unless the question states otherwise. 
     If there are multiple correct answers, separate them with a ','.
 
@@ -169,7 +176,7 @@ def log_question_and_answers(driver, question_number):
     {all_answers}
     """
 
-    model = OllamaLLM(model='llama3.1')
+    model = OllamaLLM(model='gemma2')
     prompt = ChatPromptTemplate.from_template(template)
     chain = prompt | model
 
@@ -202,7 +209,7 @@ def complete_quiz(driver):
         driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.ARROW_RIGHT)
 
         # Random sleep time between 5 and 15 seconds to mimic human behavior
-        sleep_time = random.uniform(5, 15)
+        sleep_time = random.uniform(10, 25)
         logging.info(f"Sleeping for {sleep_time:.2f} seconds before next question.")
         time.sleep(sleep_time)
 
