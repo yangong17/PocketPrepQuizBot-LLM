@@ -33,15 +33,17 @@ start_url = os.getenv("START_URL")  # Load START_URL from .env file, the "Build 
 
 # ========================== BOT SETTINGS ===========================================
 
-test_questions = 150         # Number of questions the bot will run
-AI_model = 'gemma2'          # AI model (Need to install on ollama first)
+test_questions = 100         # Number of questions the bot will run
+AI_model = 'gemma2'          # AI model (Need to install on ollama first) (e.g: llama3.1, gemma2, mistral)
 questiondelay_lower = 5      # Sleep time (in seconds) between questions to mimic human behavior 
-questiondelay_upper = 10
+questiondelay_upper = 12
 
 # Setup for using LangChain with Ollama
 template = """
-You are a highly trained occupational therapist, deeply familiar with the NBCOT COTA examination and all aspects of occupational therapy.
-Answer the following question with ONLY the letter associated with the correct answer. The accuracy of your answers are HIGHLY important.
+You are a highly trained phlebotomy technician, deeply familiar with the NHA CPT examination and how to answer questions correctly in the exam's context.
+Your current task is vetting questions for the upcoming NHA CPT examination.
+Answer the following question with ONLY the letter associated with the correct answer. 
+The accuracy of your answers is HIGHLY important.
 DO NOT include anything else in your answer. 
 DO NOT include any emojis.
 There is only one correct answer, unless the question specifically asks you to pick multiple answers. 
@@ -87,8 +89,8 @@ def navigate_to_quiz_builder(driver, start_url):
     driver.find_element(By.XPATH, '//*[@id="study__container"]/div[2]/div[2]/div[2]/div[7]').click() # (Build your own page)
     time.sleep(2)
 
-# ==========================IMPORTANT =======================================================
-def configure_quiz_settings(driver, slider_value=test_questions): #IMPORTANT! Slider value determines # of questions to run in quiz
+
+def configure_quiz_settings(driver, slider_value=test_questions): # Slider value determines # of questions to run in quiz
     # Ensure "New Questions" remains checked
     new_questions_checkbox = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, '//div[@aria-labelledby="byoq__include-item-new" and contains(@class, "uikit-checkbox")]'))
@@ -237,12 +239,11 @@ def complete_quiz(driver):
     submit_button.click()
     
     # Press the button to close results
-    close_button_xpath = '//*[@id="study"]/div/div[2]/div[3]/button[2]'
+    close_button_xpath = '//*[@id="study"]/div/div[2]/div[2]/button[2]'
     close_button = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, close_button_xpath))
     )
     close_button.click()
-    
 
 # Main function
 def main():
@@ -261,7 +262,12 @@ def main():
                 logging.info("No remaining questions. Exiting.")
                 break
             
-            time.sleep(20) # Wait for quiz to load
+            # Wait until the total_questions_xpath becomes visible
+            total_questions_xpath = '//*[@id="study"]/div/div[2]/div/div/div[2]/div/div/div[2]/div[1]/h2/div[2]'
+            WebDriverWait(driver, 20).until(
+                EC.visibility_of_element_located((By.XPATH, total_questions_xpath))
+            )
+            
             complete_quiz(driver)
 
     finally:
