@@ -62,7 +62,7 @@ Through this process, the framework demonstrates how you can:
 #### 📌 Running the Program
 Run the script directly from your command line:
 ```bash
-python your_script_name.py
+python PocketPrepQuizBot.py
 ```
 The bot will:
 1. Launch Google Chrome in incognito mode.
