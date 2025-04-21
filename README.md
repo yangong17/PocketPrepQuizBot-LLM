@@ -1,7 +1,3 @@
-Here’s a rewritten and streamlined version of your README. It emphasizes the project’s exploratory nature in fine-tuning LLMs for accuracy and integrating them with automation tools like Selenium—without the virtual environment setup section:
-
----
-
 ### ⭐PocketPrep Quiz Bot – LLM + Selenium Agent
 
 ### 📌Overview  
@@ -78,5 +74,3 @@ Adjust log levels (`DEBUG`, `INFO`, etc.) as needed.
 - Expansion into broader personal assistant functionality
 
 ---
-
-Let me know if you'd like a visual diagram or sample outputs/logs added to this repo.
