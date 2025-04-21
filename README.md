@@ -1,95 +1,82 @@
-### ⭐Overview
-This program automates the process of completing PocketPrep quizzes by using Selenium for browser interaction and a locally hosted Large Language Model (LLM) for selecting the correct answer. The primary goal of this project is to experiment with different language models on specialized, niche topics and to evaluate how prompt engineering can influence the accuracy of responses without changing the underlying model itself.
+Here’s a rewritten and streamlined version of your README. It emphasizes the project’s exploratory nature in fine-tuning LLMs for accuracy and integrating them with automation tools like Selenium—without the virtual environment setup section:
 
-Through this process, the framework demonstrates how you can:
-- Fine-tune prompts for increased accuracy.
-- Learn from model mistakes by iterating on prompt structure.
-- Gain a deeper understanding of how AI agents can be customized and improved for personal assistant applications.
+---
 
-### ⭐Features
-- 📌 **Automated quiz navigation:** Logs in to PocketPrep, navigates to the “Build Your Own” quiz section, and sets up quiz parameters.
-- 📌 **LLM-driven answer selection:** Uses the [Ollama LLM integration](https://github.com/jmorganca/ollama) to process the quiz question/answer pairs and automatically select an answer.
-- 📌 **Human-like delay simulation:** Random sleep intervals mimic human behavior between questions.
-- 📌 **Logging and debugging:** Logs essential steps and decisions for transparency.
+### ⭐PocketPrep Quiz Bot – LLM + Selenium Agent
 
-### ⭐Setup
+### 📌Overview  
+This project is a personal exploration into **how large language models (LLMs) can be fine-tuned for accuracy** and integrated with **automation tools like Selenium** to create intelligent, agentic systems.
 
-#### 📌 Requirements
-1. **Python 3.8+** (Tested on newer versions).
-2. **Google Chrome** (Latest version recommended).
-3. **ChromeDriver** (Matching your Chrome version).
-4. **Environment file (.env)** with the following variables:
-   - `LOGIN_URL`: PocketPrep login page URL.
-   - `START_URL`: The main study page or "Build Your Own" start page.
-   - `EMAIL`: Your PocketPrep account email.
-   - `PASSWORD`: Your PocketPrep account password.
-   - `CHROMEDRIVER_PATH`: Absolute path to your ChromeDriver.
+The script automates the process of completing PocketPrep quizzes by combining:
+- **Selenium** for browser-based interaction  
+- A **locally hosted LLM** (via [Ollama](https://github.com/jmorganca/ollama)) for question analysis and answer selection  
 
-#### 📌 Installation
-1. **Clone this repository** or download the code files.
-2. **Create a virtual environment** (optional but recommended):
-   ```bash
-   python -m venv venv
-   source venv/bin/activate   # On Linux/Mac
-   venv\Scripts\activate      # On Windows
+The primary goal is to experiment with LLM-driven decision-making in specialized domains, evaluate prompt engineering strategies, and observe how AI agents can be adapted for real-world tasks.
+
+### 📌What This Project Demonstrates  
+- How prompt engineering affects LLM accuracy on niche question sets  
+- How to combine LLMs with UI automation tools for agent-like behavior  
+- How iterative refinement can reduce errors and improve task performance
+
+### 📌Key Features  
+- Automated login and quiz setup on PocketPrep  
+- Dynamic quiz configuration (filters, question sliders, etc.)  
+- LLM-generated answer selection using local models (e.g., Mistral, LLaMA)  
+- Human-like delays and detailed logging for transparency and debugging  
+
+### 📌Setup Instructions
+
+#### Requirements  
+- Python 3.8+  
+- Google Chrome (latest version)  
+- ChromeDriver (matching your browser version)  
+- A `.env` file with:
+  ```
+  LOGIN_URL="https://pocketprep.com/login"
+  START_URL="https://pocketprep.com/study"
+  EMAIL="your_email@example.com"
+  PASSWORD="YourSecurePassword"
+  CHROMEDRIVER_PATH="/absolute/path/to/chromedriver"
+  ```
+
+#### Installation  
+1. Clone this repository  
+2. Install dependencies:
    ```
-3. **Install dependencies**:
-   ```bash
    pip install -r requirements.txt
    ```
-   Make sure your `requirements.txt` includes libraries like:
-   - `selenium`
-   - `python-dotenv`
-   - `langchain_ollama` (or any custom integration for Ollama)
-   - `logging` (commonly part of the standard library, but ensure no separate dependencies are needed)
+3. Download the correct [ChromeDriver](https://chromedriver.chromium.org/downloads) and update the path in your `.env` file
 
-4. **Set up ChromeDriver**:
-   - Download [ChromeDriver](https://chromedriver.chromium.org/downloads) that matches your Google Chrome version.
-   - Place it somewhere on your system.
-   - Update the path in your `.env` file to point to where ChromeDriver is located.
-
-5. **Create your `.env` file**:
-   ```
-   LOGIN_URL="https://pocketprep.com/login"
-   START_URL="https://pocketprep.com/study"
-   EMAIL="your_email@example.com"
-   PASSWORD="YourSecurePassword"
-   CHROMEDRIVER_PATH="/absolute/path/to/chromedriver"
-   ```
-
-### ⭐Usage
-
-#### 📌 Running the Program
-Run the script directly from your command line:
+### 📌Running the Bot  
+Run the script directly:
 ```bash
 python PocketPrepQuizBot.py
 ```
-The bot will:
-1. Launch Google Chrome in incognito mode.
-2. Navigate to the `LOGIN_URL` and log in with your `EMAIL` and `PASSWORD`.
-3. Navigate to the `START_URL` and configure quiz settings:
-   - Sets the quiz to only new questions.
-   - Unchecks answered/flagged/incorrect questions.
-   - Adjusts the question slider (default is `test_questions = 100`).
-4. Starts the quiz and uses your specified LLM model (`AI_model = 'mistral'` by default) to answer each question.
+It will:
+- Launch Chrome in incognito mode  
+- Log in and configure a custom quiz  
+- Use your specified LLM to select answers  
+- Simulate human interaction via randomized delays
 
-#### 📌 Customizing
-- **`AI_model`**: Change the model name to match any model you have installed with Ollama (e.g., `'llama2'`, `'mistral'`, etc.).
-- **`test_questions`**: Adjust the number of questions you want the bot to attempt in a single quiz session.
-- **`questiondelay_lower` and `questiondelay_upper`**: Control the range for the random sleep interval between questions.
-- **Prompt template**: Modify the instructions for the LLM under the `template = """ ... """` variable if you want different answer formats or additional logic.
+### 📌Customization  
+- `AI_model`: Use any locally hosted model (e.g., `mistral`, `llama2`)  
+- `test_questions`: Number of quiz questions per session  
+- Prompt template: Modify the system prompt inside the script to experiment with answer format, reasoning depth, etc.  
+- Delay settings: Customize `questiondelay_lower` and `questiondelay_upper` to control pacing  
 
-#### 📌 Logging
-All key events (login, question navigation, answer prediction, etc.) are logged to the console with varying detail. You can modify the logging level by updating:
+### 📌Logging  
+Logs all key actions for debugging and transparency:
 ```python
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 ```
-Possible levels are `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`.
+Adjust log levels (`DEBUG`, `INFO`, etc.) as needed.
 
-### ⭐Future Enhancements
-- 📌 **Adaptive Prompt Engineering**: Dynamically adjust prompts based on the model’s confidence or previous mistakes.
-- 📌 **Error Handling & Retries**: More robust handling when the site changes layout or if the LLM returns unexpected answers.
-- 📌 **Analytics & Reporting**: Track correct/incorrect answers, identify patterns, and provide feedback on question categories for better studying.
-- 📌 **Personal Assistant Framework**: Evolve this into a broader personal assistant to handle other tasks and queries using similar or advanced LLM architectures.
+### 📌Future Directions  
+- Adaptive prompt tuning based on model performance  
+- Confidence-based retries or self-reflection  
+- Study analytics: capture right/wrong answers and categorize feedback  
+- Expansion into broader personal assistant functionality
 
 ---
+
+Let me know if you'd like a visual diagram or sample outputs/logs added to this repo.
